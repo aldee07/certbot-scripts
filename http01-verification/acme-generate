@@ -47,6 +47,8 @@ EOL
 
 echo "NGINX configuration created at: $NGINX_CONF"
 
+exit 1;
+
 # Test NGINX configuration for syntax errors
 if sudo nginx -t; then
     echo "NGINX configuration is valid."
