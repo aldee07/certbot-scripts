@@ -33,7 +33,7 @@ Before you begin, ensure that you have the following:
 ```bash
 # Replace "a.foo.com b.foo.com c.foo.com" with the appropriate subdomain.
 # Replace "email@example.com" with the appropriate email that will own the certificates.
-curl -s https://raw.githubusercontent.com/07aldee/certbot-scripts/main/http01-verification/acme-generate.sh | sudo bash -s -- -d "a.foo.com b.foo.com c.foo.com" -e "email@example.com"
+curl -s https://raw.githubusercontent.com/aldee07/certbot-scripts/refs/heads/main/http01-verification/acme-generate | sudo bash -s -- -d "a.foo.com b.foo.com c.foo.com" -e "email@example.com"
 ```
 
 2. **Voila!** Your certificates will be generated in the `/var/www/acme-challenge` directory.
