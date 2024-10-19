@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Set variables
-WEBROOT="/var/www/acme-challenge"
-NGINX_CONF="/etc/nginx/sites-enabled/acme-challenge.conf"
+WEBROOT="/tmp/test/var/www/acme-challenge"
+NGINX_CONF="/tmp/test/etc/nginx/sites-enabled/acme-challenge.conf"
 DOMAINS="foobar.com"
 EMAIL="acme@foobar.com"
 
