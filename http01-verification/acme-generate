@@ -1,0 +1,72 @@
+#!/bin/bash
+
+# Set variables
+WEBROOT="/var/www/acme-challenge"
+NGINX_CONF="/etc/nginx/sites-enabled/acme-challenge.conf"
+DOMAINS="foobar.com"
+EMAIL="acme@foobar.com"
+
+# Parse options with getopts
+while getopts ":d:e:" opt; do
+  case $opt in
+    d)
+      DOMAINS="$OPTARG"
+      ;;
+    e)
+      EMAIL="$OPTARG"
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      exit 1
+      ;;
+    :)
+      echo "Option -$OPTARG requires an argument." >&2
+      exit 1
+      ;;
+  esac
+done
+
+# Create the webroot directory if it doesn't exist and add index file.
+if [ ! -d "$WEBROOT" ]; then
+    sudo mkdir -p "$WEBROOT"
+    echo "Created webroot directory: $WEBROOT"
+fi
+
+# Create NGINX configuration if it doesn't exist
+sudo tee "$NGINX_CONF" > /dev/null <<EOL
+server {
+    listen 80;
+    server_name $DOMAINS;
+
+    location /.well-known/acme-challenge/ {
+        root $WEBROOT;
+        try_files \$uri =404;
+    }
+}
+EOL
+
+echo "NGINX configuration created at: $NGINX_CONF"
+
+# Test NGINX configuration for syntax errors
+if sudo nginx -t; then
+    echo "NGINX configuration is valid."
+else
+    echo "NGINX configuration has errors. Please fix them."
+    exit 1
+fi
+
+# Reload NGINX to apply changes
+sudo systemctl reload nginx
+echo "NGINX reloaded successfully."
+
+# Generate certificates using Certbot
+sudo certbot certonly --webroot --webroot-path="$WEBROOT" --dry-run --agree-tos --email $EMAIL --no-eff-email --preferred-challenges=http -d "$DOMAINS"
+
+if [ $? -eq 0 ]; then
+    echo "Certificates generated successfully!"
+else
+    echo "Failed to generate certificates."
+    exit 1
+fi
+
+echo "Done!"
