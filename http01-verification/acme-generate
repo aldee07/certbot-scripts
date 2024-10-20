@@ -2,7 +2,7 @@
 
 # Set variables
 WEBROOT="/var/www/acme-challenge"
-NGINX_CONF="/etc/nginx/sites-enabled/acme-challenge.conf"
+NGINX_CONF="/etc/nginx/sites-enabled/zzz-acme-challenge.conf"
 DOMAINS="foobar.com"
 DOMAINS_ARG="-d foobar.com"
 EMAIL="acme@foobar.com"
@@ -75,5 +75,30 @@ else
     echo "Failed to generate certificates."
     exit 1
 fi
+
+CERT_FILE=$(echo $string | cut -d' ' -f1)
+
+# Replace acme-challenge NGINX configuration with the renewal path config
+# Create NGINX configuration if it doesn't exist
+sudo tee "/etc/nginx/snippets/certbot-renewal.conf" > /dev/null <<EOL
+# Letsencrypt autorenewal
+location ^~ /.well-known/acme-challenge/ {
+  root /var/www/acme-challenge;
+}
+EOL
+
+echo <<EOL
+  Congratulations! You have successfully generated an SSL cert. To enable auto-renewal, please add this line
+  to your webserver configuration:
+
+  `include /etc/nginx/snippets/certbot-renewal.conf;`
+EOL
+
+sudo rm -f $NGINX_CONF
+
+# Reload NGINX to apply changes
+sudo systemctl reload nginx
+echo "NGINX reloaded successfully."
+
 
 echo "Done!"

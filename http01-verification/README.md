@@ -10,7 +10,7 @@ This project provides a streamlined method for generating certificates with Cert
 
 - **NGINX Configuration:** Automatically creates the necessary NGINX server configuration for the acme-challenge.
 
-- **Certificate Generation:** Produces the required SSL/TLS certificates.
+- **Certificate Generation:** Produces the required SSL/TLS certificates individually for each domains/subdomains defined.
 
 ## Prerequisites
 
@@ -36,12 +36,28 @@ Before you begin, ensure that you have the following:
 curl -s https://raw.githubusercontent.com/aldee07/certbot-scripts/refs/heads/main/http01-verification/acme-generate | sudo bash -s -- -d "a.foo.com b.foo.com c.foo.com" -e "email@example.com"
 ```
 
-2. **Voila!** Your certificates will be generated in the `/var/www/acme-challenge` directory.
+2. **Voila!** Your certificates will be generated in the `/etc/letsencrypt/live/` directory.
 
 ## Next steps
 
-- **Review Configuration:** Check `/etc/nginx/sites-enabled/acme-challenge` to see how to integrate the certificates into your NGINX configuration.
+- **Use Certificates:** You may add the following to your webserver configuration:
+
+```conf
+# SSL configuration
+ssl_session_timeout 1d;
+ssl_session_cache shared:SSL:50m;
+
+ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+ssl_certificate      /etc/letsencrypt/live/<certname>/fullchain.pem;
+ssl_certificate_key  /etc/letsencrypt/live/<certname>/privkey.pem;
+ssl_stapling on;
+ssl_stapling_verify on;
+
+# Redirect HTTP to HTTPS
+if ($scheme = http){
+  return 301 https://$server_name$request_uri;
+}
+
+```
 
 - **Restore Previous Configurations:** If you cleaned up the `/etc/nginx/sites-enabled` folder earlier, you may want to restore any previous configurations and consider deleting the `acme-challenge` configuration.
-
-- **Move Certificates:** Optionally, move the generated certificates to their appropriate locations. Once you’ve done that, you can safely remove the `/var/www/acme-challenge` folder.
