@@ -4,6 +4,7 @@
 WEBROOT="/var/www/acme-challenge"
 NGINX_CONF="/etc/nginx/sites-enabled/acme-challenge.conf"
 DOMAINS="foobar.com"
+DOMAINS_ARG="-d foobar.com"
 EMAIL="acme@foobar.com"
 
 # Parse options with getopts
@@ -11,6 +12,11 @@ while getopts ":d:e:" opt; do
   case $opt in
     d)
       DOMAINS="$OPTARG"
+
+      DOMAINS_ARG=""
+      for word in $DOMAINS; do
+        DOMAINS_ARG+="-d $word "
+      done
       ;;
     e)
       EMAIL="$OPTARG"
@@ -60,7 +66,8 @@ sudo systemctl reload nginx
 echo "NGINX reloaded successfully."
 
 # Generate certificates using Certbot
-sudo certbot certonly --webroot --webroot-path="$WEBROOT" --dry-run --agree-tos --email $EMAIL --no-eff-email --preferred-challenges=http -d "$DOMAINS"
+echo "sudo certbot certonly --webroot --webroot-path=$WEBROOT --agree-tos --email $EMAIL --no-eff-email --preferred-challenges=http $DOMAINS_ARG"
+sudo certbot certonly --webroot --webroot-path="$WEBROOT" --dry-run --agree-tos --email $EMAIL --no-eff-email --preferred-challenges=http $DOMAINS_ARG
 
 if [ $? -eq 0 ]; then
     echo "Certificates generated successfully!"
