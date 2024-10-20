@@ -67,7 +67,7 @@ echo "NGINX reloaded successfully."
 
 # Generate certificates using Certbot
 echo "sudo certbot certonly --webroot --webroot-path=$WEBROOT --agree-tos --email $EMAIL --no-eff-email --preferred-challenges=http $DOMAINS_ARG"
-sudo certbot certonly --webroot --webroot-path="$WEBROOT" --dry-run --agree-tos --email $EMAIL --no-eff-email --preferred-challenges=http $DOMAINS_ARG
+sudo certbot certonly --webroot --webroot-path="$WEBROOT" --agree-tos --email $EMAIL --no-eff-email --preferred-challenges=http $DOMAINS_ARG
 
 if [ $? -eq 0 ]; then
     echo "Certificates generated successfully!"
